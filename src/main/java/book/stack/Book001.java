@@ -6,7 +6,7 @@ import java.util.Stack;
 /**
  * 设计一个获取最小值的栈getMin方法
  */
-public class book001 {
+public class Book001 {
 
 }
 
