@@ -1,9 +1,7 @@
 package leetcode.stackorqueue;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * 给定一个嵌套的整型列表。设计一个迭代器，使其能够遍历这个整型列表中的所有整数。
@@ -15,6 +13,9 @@ import java.util.Stack;
  * 输入: [[1,1],2,[1,1]]
  * 输出: [1,1,2,1,1]
  * 解释: 通过重复调用 next 直到 hasNext 返回false，next 返回的元素的顺序应该是: [1,1,2,1,1]。
+ *
+ *
+ * TODO 这里期望输出 void 但方法是Integer 。。。返回null 也不行  0也不行，不知道怎么处理
  */
 public class LeetCode341 {
     public static void main(String[] args) {
@@ -27,23 +28,29 @@ public class LeetCode341 {
 
 class NestedIterator implements Iterator<Integer> {
 
-    Stack<NestedInteger> stack;
+    ConcurrentLinkedDeque<NestedInteger> queue;
 
     public NestedIterator(List<NestedInteger> nestedList) {
-        stack = new Stack<>();
-        nestedList.forEach(e -> stack.push(e));
+        queue = new ConcurrentLinkedDeque<>();
+        nestedList.forEach(e -> queue.offer(e));
     }
 
     @Override
     public Integer next() {
-        if (stack.isEmpty()) {
-            return null;
+        if (queue.isEmpty()) {
+            return 0;
         }
-        NestedInteger result = stack.pop();
+        NestedInteger result = queue.poll();
+        Stack<NestedInteger> stack = new Stack<>();
         while (!result.isInteger()) {
-            result.getList().forEach(e -> stack.push(e));
-            if (!stack.isEmpty()) {
-                result = stack.pop();
+            result.getList().forEach(stack::push);
+            while (!stack.isEmpty()) {
+                queue.addFirst(stack.pop());
+            }
+            if (!queue.isEmpty()) {
+                result = queue.poll();
+            }else {
+                return result.getInteger();
             }
         }
         return result.getInteger();
@@ -51,7 +58,7 @@ class NestedIterator implements Iterator<Integer> {
 
     @Override
     public boolean hasNext() {
-        return !stack.isEmpty();
+        return !queue.isEmpty();
     }
 }
 
